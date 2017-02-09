@@ -1,0 +1,58 @@
+object Form2: TForm2
+  Left = 606
+  Height = 200
+  Top = 239
+  Width = 350
+  BorderStyle = bsDialog
+  Caption = 'Rotações - Superfície Bilinear'
+  ClientHeight = 200
+  ClientWidth = 350
+  Constraints.MaxHeight = 200
+  Constraints.MaxWidth = 350
+  Constraints.MinHeight = 200
+  Constraints.MinWidth = 350
+  LCLVersion = '1.6.0.4'
+  object textFieldAngulo: TEdit
+    Left = 72
+    Height = 23
+    Top = 104
+    Width = 100
+    Alignment = taRightJustify
+    TabOrder = 0
+    Text = '90'
+  end
+  object Label1: TLabel
+    Left = 40
+    Height = 15
+    Top = 59
+    Width = 21
+    Caption = 'Eixo'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 24
+    Height = 15
+    Top = 107
+    Width = 39
+    Caption = 'Ângulo'
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 224
+    Height = 25
+    Top = 72
+    Width = 75
+    Caption = 'Rotacionar'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object textFieldEixo: TEdit
+    Left = 72
+    Height = 23
+    Top = 56
+    Width = 100
+    Alignment = taRightJustify
+    TabOrder = 2
+    Text = 'X'
+  end
+end

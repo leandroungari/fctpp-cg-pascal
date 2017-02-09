@@ -1,0 +1,154 @@
+object Form4: TForm4
+  Left = 689
+  Height = 300
+  Top = 205
+  Width = 300
+  Caption = 'Modelo de Phong'
+  ClientHeight = 300
+  ClientWidth = 300
+  Constraints.MaxHeight = 300
+  Constraints.MaxWidth = 300
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 300
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnShow = FormShow
+  LCLVersion = '1.6.0.4'
+  object Label1: TLabel
+    Left = 16
+    Height = 15
+    Top = 32
+    Width = 153
+    Caption = 'Intensidade da Luz Ambiente'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 16
+    Height = 15
+    Top = 88
+    Width = 98
+    Caption = 'Intensidade da Luz'
+    ParentColor = False
+  end
+  object ia: TEdit
+    Left = 16
+    Height = 23
+    Top = 48
+    Width = 80
+    TabOrder = 0
+    Text = '1'
+  end
+  object il: TEdit
+    Left = 16
+    Height = 23
+    Top = 104
+    Width = 80
+    TabOrder = 1
+    Text = '1'
+  end
+  object Label3: TLabel
+    Left = 200
+    Height = 15
+    Top = 32
+    Width = 13
+    Caption = 'Ka'
+    ParentColor = False
+  end
+  object ka: TEdit
+    Left = 192
+    Height = 23
+    Top = 48
+    Width = 80
+    TabOrder = 2
+    Text = '1'
+  end
+  object kd: TEdit
+    Left = 192
+    Height = 23
+    Top = 104
+    Width = 80
+    TabOrder = 3
+    Text = '1'
+  end
+  object Label4: TLabel
+    Left = 200
+    Height = 15
+    Top = 88
+    Width = 14
+    Caption = 'Kd'
+    ParentColor = False
+  end
+  object buttonCalcular: TButton
+    Left = 109
+    Height = 25
+    Top = 248
+    Width = 75
+    Caption = 'Calcular'
+    OnClick = buttonCalcularClick
+    TabOrder = 4
+  end
+  object Label5: TLabel
+    Left = 16
+    Height = 15
+    Top = 144
+    Width = 9
+    Caption = 'N'
+    ParentColor = False
+  end
+  object n: TEdit
+    Left = 16
+    Height = 23
+    Top = 160
+    Width = 80
+    TabOrder = 5
+    Text = '1'
+  end
+  object ks: TEdit
+    Left = 192
+    Height = 23
+    Top = 160
+    Width = 80
+    TabOrder = 6
+    Text = '1'
+  end
+  object Label6: TLabel
+    Left = 200
+    Height = 15
+    Top = 144
+    Width = 12
+    Caption = 'Ks'
+    ParentColor = False
+  end
+  object k: TEdit
+    Left = 192
+    Height = 23
+    Top = 208
+    Width = 80
+    TabOrder = 7
+    Text = '1'
+  end
+  object Label7: TLabel
+    Left = 200
+    Height = 15
+    Top = 192
+    Width = 7
+    Caption = 'K'
+    ParentColor = False
+  end
+  object alfa: TEdit
+    Left = 16
+    Height = 23
+    Top = 208
+    Width = 80
+    TabOrder = 8
+    Text = '1'
+  end
+  object Label8: TLabel
+    Left = 18
+    Height = 15
+    Top = 192
+    Width = 21
+    Caption = 'Alfa'
+    ParentColor = False
+  end
+end

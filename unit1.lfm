@@ -1,0 +1,80 @@
+object Form1: TForm1
+  Left = 421
+  Height = 600
+  Top = 55
+  Width = 800
+  Caption = 'Trabalho de Computação Gráfica'
+  ClientHeight = 580
+  ClientWidth = 800
+  Constraints.MaxHeight = 600
+  Constraints.MaxWidth = 800
+  Constraints.MinHeight = 600
+  Constraints.MinWidth = 800
+  Menu = MainMenu1
+  OnCreate = FormCreate
+  LCLVersion = '1.6.0.4'
+  object imagePrincipal: TImage
+    Left = 8
+    Height = 562
+    Top = 8
+    Width = 784
+    OnMouseDown = imagePrincipalMouseDown
+    OnMouseMove = imagePrincipalMouseMove
+    OnMouseUp = imagePrincipalMouseUp
+  end
+  object MainMenu1: TMainMenu
+    left = 478
+    top = 138
+    object MenuItem13: TMenuItem
+      Caption = 'Arquivo'
+      object MenuItem14: TMenuItem
+        Caption = 'Limpar painel'
+        OnClick = MenuItem14Click
+      end
+    end
+    object MenuItem1: TMenuItem
+      Caption = 'Preenchimento'
+      object MenuItem2: TMenuItem
+        Caption = 'Inversão de Cores'
+        OnClick = MenuItem2Click
+      end
+      object MenuItem3: TMenuItem
+        Caption = 'FloodFill'
+        object MenuItem4: TMenuItem
+          Caption = 'FloodFill 4'
+          OnClick = MenuItem4Click
+        end
+        object MenuItem5: TMenuItem
+          Caption = 'FloodFill 8'
+          OnClick = MenuItem5Click
+        end
+      end
+    end
+    object MenuItem6: TMenuItem
+      Caption = 'Elementos 3D'
+      object MenuItem7: TMenuItem
+        Caption = 'Z-Buffer'
+        OnClick = MenuItem7Click
+      end
+      object MenuItem8: TMenuItem
+        Caption = 'Superfície Bilinear'
+        OnClick = MenuItem8Click
+      end
+      object MenuItem9: TMenuItem
+        Caption = 'Varredura Rotacional'
+        OnClick = MenuItem9Click
+      end
+    end
+    object MenuItem10: TMenuItem
+      Caption = 'Modelos de Iluminação'
+      object MenuItem11: TMenuItem
+        Caption = 'Modelo de Lambert'
+        OnClick = MenuItem11Click
+      end
+      object MenuItem12: TMenuItem
+        Caption = 'Modelo de Phong'
+        OnClick = MenuItem12Click
+      end
+    end
+  end
+end

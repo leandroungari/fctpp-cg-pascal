@@ -1,0 +1,89 @@
+object Form3: TForm3
+  Left = 953
+  Height = 240
+  Top = 214
+  Width = 300
+  Caption = 'Modelo de Lambert'
+  ClientHeight = 240
+  ClientWidth = 300
+  Constraints.MaxHeight = 240
+  Constraints.MaxWidth = 300
+  Constraints.MinHeight = 240
+  Constraints.MinWidth = 300
+  OnClose = FormClose
+  OnShow = FormShow
+  LCLVersion = '1.6.0.4'
+  object Label1: TLabel
+    Left = 16
+    Height = 15
+    Top = 32
+    Width = 153
+    Caption = 'Intensidade da Luz Ambiente'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 16
+    Height = 15
+    Top = 88
+    Width = 98
+    Caption = 'Intensidade da Luz'
+    ParentColor = False
+  end
+  object ia: TEdit
+    Left = 16
+    Height = 23
+    Top = 48
+    Width = 80
+    TabOrder = 0
+    Text = '1'
+  end
+  object il: TEdit
+    Left = 16
+    Height = 23
+    Top = 104
+    Width = 80
+    TabOrder = 1
+    Text = '1'
+  end
+  object Label3: TLabel
+    Left = 200
+    Height = 15
+    Top = 32
+    Width = 13
+    Caption = 'Ka'
+    ParentColor = False
+  end
+  object ka: TEdit
+    Left = 200
+    Height = 23
+    Top = 48
+    Width = 80
+    TabOrder = 2
+    Text = '1'
+  end
+  object kd: TEdit
+    Left = 200
+    Height = 23
+    Top = 104
+    Width = 80
+    TabOrder = 3
+    Text = '1'
+  end
+  object Label4: TLabel
+    Left = 200
+    Height = 15
+    Top = 88
+    Width = 14
+    Caption = 'Kd'
+    ParentColor = False
+  end
+  object buttonCalcular: TButton
+    Left = 112
+    Height = 25
+    Top = 168
+    Width = 75
+    Caption = 'Calcular'
+    OnClick = buttonCalcularClick
+    TabOrder = 4
+  end
+end
