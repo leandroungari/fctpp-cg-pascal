@@ -614,14 +614,14 @@ begin
      if imagePrincipal.Canvas.Pixels[x,y] <> clYellow then
         begin
              imagePrincipal.Canvas.Pixels[x,y] := clYellow;
+             floodfill8(x-1,y-1);
+             floodfill8(x,y-1);
+             floodfill8(x+1,y+1);
+             floodfill8(x-1,y);
+             floodfill8(x+1,y);
              floodfill8(x-1,y+1);
              floodfill8(x,y+1);
              floodfill8(x+1,y+1);
-             floodfill8(x,y-1);
-             floodfill8(x,y+1);
-             floodfill8(x-1,y-1);
-             floodfill8(x,y-1);
-             floodfill8(x+1,y-1);
         end
 end;
 

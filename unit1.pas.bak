@@ -318,7 +318,7 @@ begin
                  end
                  else if Form4.phong = True then
                  begin
-                      intensidade:=Form4.iav*Form4.kav+(Form4.ilv/(distancia(pontoLuz,ponto)+Form4.kv))*(Form4.kdv*cosseno(pontoLuz,ponto)+Form4.ksv*power(cos(Form4.alfav),Form4.nv));
+                      intensidade:=Form4.iav*Form4.kav+(Form4.ilv/(distancia(pontoLuz,ponto)+Form4.kv))*(Form4.kdv*cosseno(pontoLuz,ponto)+Form4.ksv*power(cos(2*pi),Form4.nv));
                       R := round(R*intensidade);
                       G := round(G*intensidade);
                       B := round(B*intensidade);
