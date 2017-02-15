@@ -20,6 +20,7 @@ type
     kd: TEdit;
     ks: TEdit;
     k: TEdit;
+    alfa: TEdit;
 
     Label1: TLabel;
     Label2: TLabel;
@@ -40,7 +41,7 @@ type
   public
     { public declarations }
     phong:Boolean;
-    iav,ilv,kdv,kav,kv,ksv,nv:real;
+    iav,ilv,kdv,kav,kv,ksv,nv,alfav:real;
   end;
 
 var
@@ -64,6 +65,7 @@ begin
     kv:=StrToFloat(k.Text);
     ksv:=StrToFloat(ks.Text);
     nv:=StrToFloat(n.Text);
+    alfav:=StrToFloat(alfa.Text);
 
     Form1.inicializarZBuffer();
     Form1.ativarIluminacao:=True;
@@ -84,7 +86,7 @@ end;
 procedure TForm4.FormCreate(Sender: TObject);
 begin
 
-  iav:=1;ilv:=1;kdv:=1;kav:=1;kv:=1;ksv:=1;nv:=1;alfav:=1;
+  iav:=10;ilv:=50;kdv:=1;kav:=1;kv:=1;ksv:=1;nv:=1; alfav:=10;
   Form1.pontoLuz[1]:=150;
   Form1.pontoLuz[2]:=0;
   Form1.pontoLuz[3]:=100;
@@ -94,7 +96,7 @@ begin
 end;
 
 procedure TForm4.FormShow(Sender: TObject);
-begin
+begin   clW
   Form1.inicializarZBuffer();
   Form1.ativarIluminacao:=True;
   Form4.phong:=True;

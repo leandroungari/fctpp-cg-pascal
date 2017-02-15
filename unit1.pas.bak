@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Unit2, Unit3, Unit4, Math;
+  Menus, StdCtrls, Unit2, Unit3, Unit4, Math;
 
 type
   Vector4 = array[1..4] of Integer;
@@ -45,6 +45,7 @@ type
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
+    MenuItem15: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem4: TMenuItem;
@@ -53,6 +54,7 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+
 
     procedure FormCreate(Sender: TObject);
     procedure imagePrincipalMouseDown(Sender: TObject; Button: TMouseButton;
@@ -64,6 +66,7 @@ type
     procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
+    procedure MenuItem15Click(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
@@ -115,6 +118,13 @@ type
     function modulo(v:Vector4):real;
     function produtoEscalar(v1,v2:Vector4):real;
 
+    procedure rgbtohsl(r,g,b:integer;var h,s,l:integer);
+    procedure hsltorgb(h,s,l:integer;var r,g,b:integer);
+
+    procedure animacao();
+    procedure perspectivaCavaleira( VAR matrizXY: T4Array);
+
+
   end;
 
 var
@@ -126,6 +136,8 @@ var
   inicial,final, comecoDesenho:Vector4;
   listaPontos:array of Vector4;
   t: Trapezio;
+  aplicarProjecao:boolean;
+  matrizProjecao:T4Array;
 
 
 
@@ -135,6 +147,39 @@ implementation
 {$R *.lfm}
 
 { TForm1 }
+procedure TForm1.animacao();
+begin
+     Form4.phong:=True;
+     aplicarProjecao:=true;
+     inicializarZBuffer();
+     perspectivaCavaleira(matrizProjecao);
+     desenharCuboParaleloEixos(200,200,200,100,clRed);
+     desenharCone(300,300,-30, 40,clBlue);
+     Form4.phong:=False;
+
+end;
+
+procedure TForm1.perspectivaCavaleira( VAR matrizXY: T4Array);
+begin
+       matrizXY[1,1] := 1;
+       matrizXY[1,2] := 0;
+       matrizXY[1,3] := 0;
+       matrizXY[1,4] := 0;
+       matrizXY[2,1] := 0;
+       matrizXY[2,2] := 1;
+       matrizXY[2,3] := 0;
+       matrizXY[2,4] := 0;
+       matrizXY[3,1] := cos(Pi/3);
+       matrizXY[3,2] := sin(Pi/3);
+       matrizXY[3,3] := 0;
+       matrizXY[3,4] := 0;
+       matrizXY[4,1] := 0;
+       matrizXY[4,2] := 0;
+       matrizXY[4,3] := 0;
+       matrizXY[4,4] := 1;
+end;
+
+/////////////////////////////////////////////////////////
 procedure TForm1.desenharPlano(x,y,z,l,m:integer;cor:TColor);
 var i,j:integer;
 begin
@@ -167,6 +212,7 @@ end;
 procedure TForm1.desenharCone(x,y,z,altura:integer; cor:TColor);
 var t, pi2, alfa, passo:Real;
     xp,yp,zp:integer;
+    ponto:Vector4;
 begin
    {cone amarelo}
    pi2:= 2*pi;
@@ -288,15 +334,99 @@ begin
 
 end;
 
+procedure TForm1.rgbtohsl(r,g,b:integer;var h,s,l:integer);
+var vr,vg,vb,vh,vs,vl, min, max:real;
+
+begin
+    vr := r/255;
+    vg := g/255;
+    vb := b/255;
+
+    //min
+    if (vr < vg) then min:=vr else min:=vg;
+    if (vb < min) then min:=vb;
+    //max
+    if (vr > vg) then max:=vr else max:=vg;
+    if (vb > max) then max:=vb;
+
+    if (min = max) then vh := 160
+    else
+      if (max = vr) then vh:= round(60*((vg-vb)/(max-min)))mod(360)
+      else
+        if (max = vg) then vh:=((60*((vb-vr)/(max-min)))+120)
+        else vh:=(60*((vr - vg)/(max - min)) + 240);
+
+    vl:=0.5*(max+min);
+
+    if (max = min) then vs:=0
+    else
+      if (vl <= 0.5) then vs := ((max-min)/(2*vl))
+      else vs := ((max - min)/(2-2*vl));
+
+    if((max = min) and (vh = 160)) then vh := 160
+    else vh := round(240*vh/360.0);
+
+    if (vh < 0) then h:=round(240+vh)
+    else h:=round(vh);
+
+    if (vs < 0) then s:=round(240+vs*240)
+    else s:=round(vs*240);
+
+    if (vl < 0) then l:=round(240+vl*240)
+    else l:=round(vl*240);
+
+end;
+
+procedure TForm1.hsltorgb(h,s,l:integer;var r,g,b:integer);
+var vr,vg,vb,vh,vs,vl, p,q:real;
+    lista:array[1..3] of real;
+    i:integer;
+begin
+     vh:=360*h/240;
+     vs:=s/240;
+     vl:=l/240;
+
+     if (vl < 0.5) then q := vl*(1+vs)
+     else q := vl + vs - (vl*vs);
+     p := 2*vl-q;
+     vh:=vh/360;
+
+     vr := vh + (1/3.0);
+     vg := vh;
+     vb := vh - (1/3.0);
+     lista[1]:=vr;lista[2]:=vg;lista[3]:=vb;
+
+     for i:=1 to 3 do
+     begin
+
+         if (lista[i] < 0) then lista[i]:=lista[i]+1;
+         if (lista[i] > 1) then lista[i]:=lista[i]-1;
+
+         if(lista[i] < (1/6.0)) then lista[i] := p + ((q-p)*6*lista[i])
+         else if(((1/6.0) <= lista[i]) and (lista[i] < (1/2.0))) then lista[i] := q
+         else if(((1/2.0) <= lista[i]) and (lista[i] < (2/3.0))) then lista[i] := p + ((q-p)*6*((2/3.0) - lista[i]))
+         else lista[i] := p;
+     end;
+
+     r:=round(lista[1]*255);g:=round(lista[2]*255);b:=round(lista[3]*255);
+end;
+
 {atribuir valor do ponto na matriz do ZBuffer}
 procedure TForm1.assignZBuffer(x,y,z:integer;cor:tcolor);
-var r,g,b:integer;
-    intensidade:real;
+var r,g,b,h,s,l:integer;
+    intensidade, especular, angulo:real;
     ponto:Vector4;
 begin
     if ((x > 0) and (x <= 784) and (y > 0) and (y <= 562)) then
        if (z > buffer[x,y].z) then
        begin
+
+            if (aplicarProjecao = true) then
+            begin
+                 ponto[1]:=x;ponto[2]:=y;ponto[3]:=z;ponto[4]:=1;
+                 multiplicacao(ponto, matrizProjecao, ponto);
+                 x:=ponto[1];y:=ponto[2];z:=ponto[3];
+            end;
 
             if ativarIluminacao = True  then
             begin
@@ -315,17 +445,28 @@ begin
                       R := round(R*intensidade);
                       G := round(G*intensidade);
                       B := round(B*intensidade);
+                      cor := R + 256 * G + 65536 * B;
+
                  end
                  else if Form4.phong = True then
                  begin
-                      intensidade:=Form4.iav*Form4.kav+(Form4.ilv/(distancia(pontoLuz,ponto)+Form4.kv))*(Form4.kdv*cosseno(pontoLuz,ponto)+Form4.ksv*power(cos(2*pi),Form4.nv));
-                      R := round(R*intensidade);
-                      G := round(G*intensidade);
-                      B := round(B*intensidade);
+                      angulo:=(Form4.alfav*pi)/180;
+                      intensidade:=Form4.iav*Form4.kav+(Form4.ilv/(distancia(pontoLuz,ponto)+Form4.kv))*(Form4.kdv*cosseno(pontoLuz,ponto));
+                      if (intensidade > 0.5) then intensidade:=0.5;
+
+
+                      especular:=(Form4.ilv/(distancia(pontoLuz,ponto)+Form4.kv))*(Form4.ksv*power(cos(angulo),Form4.nv));
+                      if (especular > 0.5) then especular:=0.5;
+
+                      rgbtohsl(r,g,b,h,s,l);
+                      l:=round(239*(intensidade+especular));
+                      hsltorgb(h,s,l,r,g,b);
+
+                      //cor resultante
+                      cor := R + 256 * G + 65536 * B;
                  end;
 
-                 //cor resultante
-                 cor := R + 256 * G + 65536 * B;
+
             end;
 
             buffer[x,y].z := z;
@@ -614,14 +755,14 @@ begin
      if imagePrincipal.Canvas.Pixels[x,y] <> clYellow then
         begin
              imagePrincipal.Canvas.Pixels[x,y] := clYellow;
+             floodfill8(x-1,y-1);
+             floodfill8(x,y-1);
+             floodfill8(x+1,y+1);
+             floodfill8(x-1,y);
+             floodfill8(x+1,y);
              floodfill8(x-1,y+1);
              floodfill8(x,y+1);
              floodfill8(x+1,y+1);
-             floodfill8(x,y-1);
-             floodfill8(x,y+1);
-             floodfill8(x-1,y-1);
-             floodfill8(x,y-1);
-             floodfill8(x+1,y-1);
         end
 end;
 
@@ -841,6 +982,10 @@ begin
 end;
 
 
+
+
+
+
 procedure TForm1.imagePrincipalMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
@@ -927,6 +1072,11 @@ end;
 procedure TForm1.MenuItem14Click(Sender: TObject);
 begin
   inicializarZBuffer();
+end;
+//renderização da animação
+procedure TForm1.MenuItem15Click(Sender: TObject);
+begin
+   animacao();
 end;
 
 procedure TForm1.MenuItem2Click(Sender: TObject);

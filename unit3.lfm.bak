@@ -11,6 +11,7 @@ object Form3: TForm3
   Constraints.MinHeight = 240
   Constraints.MinWidth = 300
   OnClose = FormClose
+  OnCreate = FormCreate
   OnShow = FormShow
   LCLVersion = '1.6.0.4'
   object Label1: TLabel

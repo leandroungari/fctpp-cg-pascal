@@ -24,6 +24,7 @@ type
 
     procedure buttonCalcularClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
     { private declarations }
@@ -64,15 +65,20 @@ begin
   lambert:=False;
 end;
 
-
-procedure TForm3.FormShow(Sender: TObject);
+procedure TForm3.FormCreate(Sender: TObject);
 begin
-
   iav:=1;ilv:=1;kdv:=1;kav:=1;
   Form1.pontoLuz[1]:=150;
   Form1.pontoLuz[2]:=0;
   Form1.pontoLuz[3]:=100;
   Form1.pontoLuz[4]:=1;
+end;
+
+
+procedure TForm3.FormShow(Sender: TObject);
+begin
+
+
 
   Form1.inicializarZBuffer();
   Form1.ativarIluminacao:=True;
