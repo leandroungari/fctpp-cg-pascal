@@ -1,7 +1,7 @@
 object Form4: TForm4
-  Left = 975
+  Left = 1025
   Height = 300
-  Top = 152
+  Top = 261
   Width = 300
   Caption = 'Modelo de Phong'
   ClientHeight = 300
@@ -36,7 +36,7 @@ object Form4: TForm4
     Top = 48
     Width = 80
     TabOrder = 0
-    Text = '10'
+    Text = '6'
   end
   object il: TEdit
     Left = 16
@@ -44,7 +44,7 @@ object Form4: TForm4
     Top = 104
     Width = 80
     TabOrder = 1
-    Text = '50'
+    Text = '20'
   end
   object Label3: TLabel
     Left = 200
@@ -68,7 +68,7 @@ object Form4: TForm4
     Top = 104
     Width = 80
     TabOrder = 3
-    Text = '1'
+    Text = '0,8'
   end
   object Label4: TLabel
     Left = 200
@@ -101,7 +101,7 @@ object Form4: TForm4
     Top = 160
     Width = 80
     TabOrder = 5
-    Text = '1'
+    Text = '50'
   end
   object ks: TEdit
     Left = 192
@@ -109,7 +109,7 @@ object Form4: TForm4
     Top = 160
     Width = 80
     TabOrder = 6
-    Text = '1'
+    Text = '0,8'
   end
   object Label6: TLabel
     Left = 200
@@ -125,7 +125,7 @@ object Form4: TForm4
     Top = 208
     Width = 80
     TabOrder = 7
-    Text = '1'
+    Text = '-80'
   end
   object Label7: TLabel
     Left = 200
@@ -141,7 +141,7 @@ object Form4: TForm4
     Top = 208
     Width = 80
     TabOrder = 8
-    Text = '10'
+    Text = '3'
   end
   object Label8: TLabel
     Left = 18

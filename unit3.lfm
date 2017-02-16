@@ -4,8 +4,8 @@ object Form3: TForm3
   Top = 214
   Width = 300
   Caption = 'Modelo de Lambert'
-  ClientHeight = 240
-  ClientWidth = 300
+  ClientHeight = 0
+  ClientWidth = 0
   Constraints.MaxHeight = 240
   Constraints.MaxWidth = 300
   Constraints.MinHeight = 240
@@ -36,7 +36,7 @@ object Form3: TForm3
     Top = 48
     Width = 80
     TabOrder = 0
-    Text = '1'
+    Text = '1,2'
   end
   object il: TEdit
     Left = 16
@@ -44,7 +44,7 @@ object Form3: TForm3
     Top = 104
     Width = 80
     TabOrder = 1
-    Text = '1'
+    Text = '1,6'
   end
   object Label3: TLabel
     Left = 200
@@ -60,7 +60,7 @@ object Form3: TForm3
     Top = 48
     Width = 80
     TabOrder = 2
-    Text = '1'
+    Text = '0,9'
   end
   object kd: TEdit
     Left = 200
@@ -68,7 +68,7 @@ object Form3: TForm3
     Top = 104
     Width = 80
     TabOrder = 3
-    Text = '1'
+    Text = '0,7'
   end
   object Label4: TLabel
     Left = 200

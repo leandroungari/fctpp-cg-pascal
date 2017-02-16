@@ -43,11 +43,18 @@ implementation
 
 { TForm3 }
 
-uses unit1;
+uses unit1,unit4;
 
 procedure TForm3.buttonCalcularClick(Sender: TObject);
 begin
-    iav:=StrToFloat(ia.Text);
+     Form3.lambert:=True;
+     Form4.phong:=false;
+     Form1.pontoLuz[1]:=150;
+     Form1.pontoLuz[2]:=0;
+     Form1.pontoLuz[3]:=100;
+     Form1.pontoLuz[4]:=1;
+
+     iav:=StrToFloat(ia.Text);
     ilv:=StrToFloat(il.Text);
     kdv:=StrToFloat(kd.Text);
     kav:=StrToFloat(ka.Text);
@@ -67,7 +74,7 @@ end;
 
 procedure TForm3.FormCreate(Sender: TObject);
 begin
-  iav:=1;ilv:=1;kdv:=1;kav:=1;
+  Form3.iav:=1.2;Form3.ilv:=1.6;Form3.kdv:=0.7;Form3.kav:=0.9;
   Form1.pontoLuz[1]:=150;
   Form1.pontoLuz[2]:=0;
   Form1.pontoLuz[3]:=100;
@@ -77,8 +84,11 @@ end;
 
 procedure TForm3.FormShow(Sender: TObject);
 begin
-
-
+  Form3.iav:=1.2;Form3.ilv:=1.6;Form3.kdv:=0.7;Form3.kav:=0.9;
+  Form1.pontoLuz[1]:=150;
+  Form1.pontoLuz[2]:=0;
+  Form1.pontoLuz[3]:=100;
+  Form1.pontoLuz[4]:=1;
 
   Form1.inicializarZBuffer();
   Form1.ativarIluminacao:=True;
