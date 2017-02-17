@@ -123,11 +123,18 @@ type
     procedure rgbtohsl(r,g,b:integer;var h,s,l:integer);
     procedure hsltorgb(h,s,l:integer;var r,g,b:integer);
 
+
+    ///////////////////////////////////////
     procedure animacao();
     procedure perspectivaCavaleira( VAR matrizXY: T4Array);
     procedure desenharParaboloide(x,y,z:integer;h:real;cor:tcolor);
     procedure desenharCilindro(x,y,z:integer; r,h:real; cor:tcolor);
-
+    procedure desenharFoguete(x,y,z:integer);
+    function multiplicaMatriz(var entrada, operacao:T4Array):T4Array;
+    procedure inicializarImagemFundo();
+    procedure desenharEstrelaNave(x,y,z:integer;r:real;imagem:TImage);
+    procedure desenharPlaneta(x,y,z:integer;r:real);
+    procedure desenharCilindro(x,y,z:integer; r,h:real;imagem:TImage);
 
   end;
 
@@ -140,10 +147,13 @@ var
   inicial,final, comecoDesenho:Vector4;
   listaPontos:array of Vector4;
   t: Trapezio;
-  aplicarProjecao:boolean;
-  matrizProjecao, matrizRotacao:T4Array;
-  ativarRotacao:Boolean;
-  xr,yr,zr:integer;
+
+  //ativar transformações
+  aplicarTranformacao:boolean;
+
+  //matrizes de transformação
+  matrizRotacao, matrizTranslacao, matrizEscala, matrizPrincipal:T4Array;
+
 
 
 implementation
@@ -164,44 +174,143 @@ begin
      Form1.ativarIluminacao:=True;
      Form3.lambert:=false;
      Form4.phong:=true;
+     aplicarTranformacao:=true;
 
-     aplicarProjecao:=false;
+     rotacaoX(matrizRotacao, 20);
+     translacao(matrizTranslacao, 200, 20, 0);
+     matrizPrincipal:=multiplicaMatriz(matrizRotacao, matrizTranslacao);
+
+
      inicializarZBuffer();
-     perspectivaCavaleira(matrizProjecao);
-     //desenharCuboParaleloEixos(200,200,200,100,clRed);
-     //desenharCone(300,300,-30, 40,clBlue);
-     desenharParaboloide(200,200,0,50,clRed);
-     desenharCilindro(200,250,0,50,120,clGray);
+
+     desenharFoguete(200,200,0);
      Form3.lambert:=false;
      Form4.phong:=False;
 
 end;
 
-procedure TForm1.inicializarMatrizRotacao();
+procedure TForm1.inicializarImagemFundo();
 begin
-     matrizXY[1,1] := 1;
-     matrizXY[1,2] := 0;
-     matrizXY[1,3] := 0;
-     matrizXY[1,4] := 0;
-     matrizXY[2,1] := 0;
-     matrizXY[2,2] := 1;
-     matrizXY[2,3] := 0;
-     matrizXY[2,4] := 0;
-     matrizXY[3,1] := cos(30*Pi/180);
-     matrizXY[3,2] := sin(30*Pi/180);
-     matrizXY[3,3] := 0;
-     matrizXY[3,4] := 0;
-     matrizXY[4,1] := 0;
-     matrizXY[4,2] := 0;
-     matrizXY[4,3] := 0;
-     matrizXY[4,4] := 1;
+
+     imagePrincipal.Picture.LoadFromFile('img\espaco_fundo.bmp');
+
 end;
+
+
+procedure TForm1.desenharEstrelaNave(x,y,z:integer;r:real;imagem:TImage);
+var xp,yp,zp:integer;
+    alfa, beta, pi2, passoAlfa, passoBeta:real;
+    cor : TColor;
+    i, j : real;
+begin
+    imagem.Picture.Clear;
+    imagem.Picture.LoadFromFile('img\textura_estrela4.bmp');
+    i := 0; j := 0;
+    alfa:=0;
+    pi2:=2*pi;
+    passoAlfa:=pi2/720; passoBeta:=pi2/360;
+    while alfa <= pi2 do
+        begin
+            beta:=-pi;
+            j := 0;
+            while beta <= pi do
+                begin
+                    xp:=round(x+r*cos(alfa)*cos(beta));
+                    yp:=round(y+r*cos(alfa)*sin(beta));
+                    zp:=round(z+r*sin(alfa));
+
+
+                    cor := imagem.Canvas.Pixels[round(i),round(j)];
+
+                    assignZBuffer(xp,yp,zp,cor);
+                    //assignZBuffer(xp,yp,zp,clSilver);
+
+                    beta:=beta+passoBeta;
+                    j := (j + 0.85);
+                end;
+            alfa:=alfa+passoAlfa;
+            i := (i + 0.29);
+        end;
+end;
+
+procedure TForm1.desenharPlaneta(x,y,z:integer;r:real);
+var xp,yp,zp:integer;
+    alfa, beta, pi2, passoAlfa, passoBeta:real;
+    auxCor : integer;
+    cor : TColor;
+begin
+    auxCor := 1;
+    alfa:=0;
+    pi2:=2*pi;
+    passoAlfa:=pi2/720; passoBeta:=pi2/360;
+    while alfa <= pi2 do
+        begin
+            beta:=-pi;
+            while beta <= pi do
+                begin
+                    xp:=round(x+r*cos(alfa)*cos(beta));
+                    yp:=round(y+r*cos(alfa)*sin(beta));
+                    zp:=round(z+r*sin(alfa));
+
+                    if (auxCor = 1) then cor := clMaroon
+                    else cor := clGreen;
+                    assignZBuffer(xp,yp,zp,cor);
+
+                    beta:=beta+passoBeta;
+                    if (auxCor = 1) then auxCor := 0
+                    else auxCor := 1;
+                end;
+            alfa:=alfa+passoAlfa;
+        end;
+end;
+
+
+procedure TForm1.desenharCilindro(x,y,z:integer; r,h:real; imagem:TImage);
+var
+    i,j,palfa,pi2:real;
+    cor : TColor;
+begin
+     imagem.Picture.LoadFromFile('img\textura_metal.bmp');
+     pi2:=2*pi;
+     palfa:=pi/1440;
+     i:=0;
+     while (i <= h) do
+     begin
+         j:=0;
+         while (j <= pi2) do
+         begin
+              cor := imagem.Canvas.Pixels[round(i+1),round(j+1)];
+              assignZBuffer(round(x+r*cos(j)), round(y+i), round(z+r*sin(j)), cor);
+              j:=j+palfa;
+         end;
+
+         i:=i+0.01;
+     end;
+end;
+
+function TForm1.multiplicaMatriz(var entrada, operacao:T4Array):T4Array;
+var i,j,k:integer;
+  saida:T4Array;
+begin
+     for i:=1 to 4 do
+         for j:= 1 to 4 do
+         begin
+             saida[i,j]:=0;
+             for k:= 1 to 4 do
+             begin
+                  saida[i,j]:=saida[i,j]+entrada[i,k]*operacao[k,j];
+             end;
+         end;
+
+     multiplicaMatriz:=saida;
+end;
+
 
 procedure TForm1.desenharParaboloide(x,y,z:integer;h:real;cor:tcolor);
 var i,j,palfa,pi2:real;
 begin
      pi2:=2*pi;
-     palfa:=pi/1440;
+     palfa:=pi/360;
      i:=0;
      while (i <= h) do
      begin
@@ -212,15 +321,14 @@ begin
               j:=j+palfa;
          end;
 
-         i:=i+0.01;
+         i:=i+0.05;
      end;
 end;
-
 procedure TForm1.desenharCilindro(x,y,z:integer; r,h:real; cor:tcolor);
 var i,j,palfa,pi2:real;
 begin
      pi2:=2*pi;
-     palfa:=pi/1440;
+     palfa:=pi/360;
      i:=0;
      while (i <= h) do
      begin
@@ -231,10 +339,32 @@ begin
               j:=j+palfa;
          end;
 
-         i:=i+0.01;
+         i:=i+0.05;
      end;
 end;
 
+procedure TForm1.desenharFoguete(x,y,z:integer);
+var i,j,palfa,pi2:real;
+begin
+     pi2:=2*pi;
+     palfa:=pi/360;
+     i:=0;
+     while (i <= 200) do
+     begin
+         j:=0;
+         while (j <= pi2) do
+         begin
+              if (i <= 50) then assignZBuffer(round(x+i*cos(j)), round(y+i), round(z+i*sin(j)), clRed);
+              assignZBuffer(round(x+50*cos(j)), round(y+50+i), round(z+50*sin(j)), clGray);
+              j:=j+palfa;
+         end;
+
+         i:=i+0.1;
+     end;
+end;
+////////////////////////////////////
+///////////////////////////////////
+//////////////////////////////////
 procedure TForm1.perspectivaCavaleira( VAR matrizXY: T4Array);
 begin
        matrizXY[1,1] := 1;
@@ -493,26 +623,19 @@ var r,g,b,h,s,l:integer;
     intensidade, especular, angulo:real;
     ponto:Vector4;
 begin
+    ponto[1]:=x;ponto[2]:=y;ponto[3]:=z;ponto[4]:=1;
+
+    if (aplicarTranformacao = true) then
+    begin
+         multiplicacao(ponto, matrizPrincipal, ponto);
+    end;
+
+    x:=ponto[1];y:=ponto[2];z:=ponto[3];
+
     if ((x > 0) and (x <= 784) and (y > 0) and (y <= 562)) then
        if (z > buffer[x,y].z) then
        begin
-            ponto[1]:=x;ponto[2]:=y;ponto[3]:=z;ponto[4]:=1;
 
-            if (ativarRotacao = true) then
-            begin
-                 multiplicacao(ponto, matrizRotacao, ponto);
-            end;
-
-            if (aplicarProjecao = true) then
-            begin
-                 ponto[1]:=x;ponto[2]:=y;ponto[3]:=z;ponto[4]:=1;
-                 multiplicacao(ponto, matrizProjecao, ponto);
-
-            end;
-
-
-
-            x:=ponto[1];y:=ponto[2];z:=ponto[3];
             if ativarIluminacao = True  then
             begin
 
