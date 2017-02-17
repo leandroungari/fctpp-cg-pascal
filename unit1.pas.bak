@@ -31,6 +31,10 @@ type
       ponto:array[1..10] of Ponto
   end;
 
+  Foguete = record
+      medio:Vector4;
+  end;
+
 
 
   MatrizZBuffer = array[1..784,1..562] of PontoBufferZ;
@@ -38,6 +42,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    imagemTextura: TImage;
 
     imagePrincipal: TImage;
     MainMenu1: TMainMenu;
@@ -129,12 +134,13 @@ type
     procedure perspectivaCavaleira( VAR matrizXY: T4Array);
     procedure desenharParaboloide(x,y,z:integer;h:real;cor:tcolor);
     procedure desenharCilindro(x,y,z:integer; r,h:real; cor:tcolor);
-    procedure desenharFoguete(x,y,z:integer);
+    procedure desenharFoguete(x,y,z:integer; imagem:TImage);
     function multiplicaMatriz(var entrada, operacao:T4Array):T4Array;
     procedure inicializarImagemFundo();
     procedure desenharEstrelaNave(x,y,z:integer;r:real;imagem:TImage);
     procedure desenharPlaneta(x,y,z:integer;r:real);
     procedure desenharCilindro(x,y,z:integer; r,h:real;imagem:TImage);
+    procedure escala(var matrizXY:T4Array;a,e,i: real);
 
   end;
 
@@ -154,6 +160,8 @@ var
   //matrizes de transformação
   matrizRotacao, matrizTranslacao, matrizEscala, matrizPrincipal:T4Array;
 
+  nomeImagem:string;
+
 
 
 implementation
@@ -162,6 +170,7 @@ implementation
 
 { TForm1 }
 procedure TForm1.animacao();
+var cont:integer;
 begin
      Form1.pontoLuz[1]:=100;
      Form1.pontoLuz[2]:=200;
@@ -171,19 +180,33 @@ begin
      Form4.iav:=6;Form4.ilv:=20;Form4.kdv:=0.8;Form4.kav:=1;Form4.kv:=-80;Form4.ksv:=0.8;Form4.nv:=50; Form4.alfav:=8;
 
      //ativa a iluminação por phong
-     Form1.ativarIluminacao:=True;
+     Form1.ativarIluminacao:=true;
      Form3.lambert:=false;
      Form4.phong:=true;
      aplicarTranformacao:=true;
 
-     rotacaoX(matrizRotacao, 20);
-     translacao(matrizTranslacao, 200, 20, 0);
-     matrizPrincipal:=multiplicaMatriz(matrizRotacao, matrizTranslacao);
 
 
-     inicializarZBuffer();
+     for cont:=100 to 150 do
+     begin
 
-     desenharFoguete(200,200,0);
+         translacao(matrizTranslacao, 200, 200, 0);
+         rotacaoZ(matrizRotacao, 5*(cont-100));
+         matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
+         rotacaoX(matrizRotacao,30);
+         matrizPrincipal:=multiplicaMatriz(matrizPrincipal, matrizRotacao);
+         escala(matrizEscala, 1 - t*0.03,1 - t*0.03,1 - t*0.03);
+         matrizPrincipal:=multiplicaMatriz(matrizPrincipal, matrizEscala);
+         inicializarZBuffer();
+
+         Form1.ativarIluminacao:=false;
+         desenharFoguete(0,0,0, imagemTextura);
+         Form1.ativarIluminacao:=true;
+
+         nomeImagem := IntToStr(cont) + '.bmp';
+         imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
+     end;
+
      Form3.lambert:=false;
      Form4.phong:=False;
 
@@ -264,6 +287,25 @@ begin
         end;
 end;
 
+procedure TForm1.escala(var matrizXY:T4Array;a,e,i: real);
+begin
+       matrizXY[1,1] := a;
+       matrizXY[1,2] := 0;
+       matrizXY[1,3] := 0;
+       matrizXY[1,4] := 0;
+       matrizXY[2,1] := 0;
+       matrizXY[2,2] := e;
+       matrizXY[2,3] := 0;
+       matrizXY[2,4] := 0;
+       matrizXY[3,1] := 0;
+       matrizXY[3,2] := 0;
+       matrizXY[3,3] := i;
+       matrizXY[3,4] := 0;
+       matrizXY[4,1] := 0;
+       matrizXY[4,2] := 0;
+       matrizXY[4,3] := 0;
+       matrizXY[4,4] := 1;
+end;
 
 procedure TForm1.desenharCilindro(x,y,z:integer; r,h:real; imagem:TImage);
 var
@@ -343,9 +385,12 @@ begin
      end;
 end;
 
-procedure TForm1.desenharFoguete(x,y,z:integer);
+procedure TForm1.desenharFoguete(x,y,z:integer; imagem:TImage);
 var i,j,palfa,pi2:real;
+  cor:tcolor;
 begin
+
+     imagem.Picture.LoadFromFile('img\textura_metal.bmp');
      pi2:=2*pi;
      palfa:=pi/360;
      i:=0;
@@ -354,8 +399,9 @@ begin
          j:=0;
          while (j <= pi2) do
          begin
+              cor := imagem.Canvas.Pixels[round(i+1),round(j+1)];
               if (i <= 50) then assignZBuffer(round(x+i*cos(j)), round(y+i), round(z+i*sin(j)), clRed);
-              assignZBuffer(round(x+50*cos(j)), round(y+50+i), round(z+50*sin(j)), clGray);
+              assignZBuffer(round(x+50*cos(j)), round(y+50+i), round(z+50*sin(j)), cor);
               j:=j+palfa;
          end;
 
