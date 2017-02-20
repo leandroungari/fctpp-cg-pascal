@@ -42,6 +42,9 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    imageDia: TImage;
+    imageGrama: TImage;
+    imageFogo: TImage;
     imagemTextura: TImage;
 
     imagePrincipal: TImage;
@@ -52,7 +55,6 @@ type
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
-    MenuItem15: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem4: TMenuItem;
@@ -64,6 +66,7 @@ type
 
 
     procedure FormCreate(Sender: TObject);
+    procedure imageGramaClick(Sender: TObject);
     procedure imagePrincipalMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure imagePrincipalMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -130,17 +133,22 @@ type
 
 
     ///////////////////////////////////////
+    //Principais funções utilizadas na animação
     procedure animacao();
     procedure perspectivaCavaleira( VAR matrizXY: T4Array);
     procedure desenharParaboloide(x,y,z:integer;h:real;cor:tcolor);
     procedure desenharCilindro(x,y,z:integer; r,h:real; cor:tcolor);
     procedure desenharFoguete(x,y,z:integer; imagem:TImage);
+    procedure desenharFoguete(x,y,z,h:integer; imagem:TImage);
     function multiplicaMatriz(var entrada, operacao:T4Array):T4Array;
     procedure inicializarImagemFundo();
     procedure desenharEstrelaNave(x,y,z:integer;r:real;imagem:TImage);
     procedure desenharPlaneta(x,y,z:integer;r:real);
     procedure desenharCilindro(x,y,z:integer; r,h:real;imagem:TImage);
     procedure escala(var matrizXY:T4Array;a,e,i: real);
+    procedure desenharGrama(x,y,z,l,m:integer);
+    procedure desenharCeu(dia:integer);
+    procedure desenharEstrelaNaveDestruida(x,y,z:integer;r:real;cor:tcolor);
 
   end;
 
@@ -153,6 +161,8 @@ var
   inicial,final, comecoDesenho:Vector4;
   listaPontos:array of Vector4;
   t: Trapezio;
+  animar:integer;
+  ativarFogo:boolean;
 
   //ativar transformações
   aplicarTranformacao:boolean;
@@ -170,46 +180,332 @@ implementation
 
 { TForm1 }
 procedure TForm1.animacao();
-var cont:integer;
+var
+    cont, dia:integer;
+    contEscala, contSubidaFoguete, contRotacao, contVelocidadeNave : integer;
+    x1, y1, x2, y2 : integer;
+    destruida : integer;
+
 begin
-     Form1.pontoLuz[1]:=100;
-     Form1.pontoLuz[2]:=200;
-     Form1.pontoLuz[3]:=100;
+
+     Form1.pontoLuz[1]:=50;
+     Form1.pontoLuz[2]:=50;
+     Form1.pontoLuz[3]:=50;
      Form1.pontoLuz[4]:=1;
      Form3.iav:=1.2;Form3.ilv:=1.6;Form3.kdv:=0.7;Form3.kav:=0.9;
-     Form4.iav:=6;Form4.ilv:=20;Form4.kdv:=0.8;Form4.kav:=1;Form4.kv:=-80;Form4.ksv:=0.8;Form4.nv:=50; Form4.alfav:=8;
+     Form4.iav:=6;Form4.ilv:=24;Form4.kdv:=0.8;Form4.kav:=1;Form4.kv:=-80;Form4.ksv:=0.8;Form4.nv:=50; Form4.alfav:=8;
+     imageGrama.Picture.LoadFromFile('img\grama.bmp');
+     imageFogo.Picture.LoadFromFile('img\fogo.bmp');
 
-     //ativa a iluminação por phong
+     //ativa a iluminação por phong ou lambert
      Form1.ativarIluminacao:=true;
-     Form3.lambert:=false;
-     Form4.phong:=true;
+     Form3.lambert:=true;
+     Form4.phong:=false;
      aplicarTranformacao:=true;
 
+     dia:=1;
+     rotacaoX(matrizRotacao, 40);
 
-
-     for cont:=100 to 150 do
+     //0 a 330
+     for cont:=0 to 330 do
      begin
 
-         translacao(matrizTranslacao, 200, 200, 0);
-         rotacaoZ(matrizRotacao, 5*(cont-100));
-         matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
-         rotacaoX(matrizRotacao,30);
-         matrizPrincipal:=multiplicaMatriz(matrizPrincipal, matrizRotacao);
-         escala(matrizEscala, 1 - cont*0.03,1 - cont*0.03,1 - cont*0.03);
-         matrizPrincipal:=multiplicaMatriz(matrizPrincipal, matrizEscala);
+         animar:=cont;
          inicializarZBuffer();
 
-         Form1.ativarIluminacao:=false;
-         desenharFoguete(0,0,0, imagemTextura);
-         Form1.ativarIluminacao:=true;
+         if dia = 1 then
+         begin
+
+           if (cont > 160) then dia:= 0;
+
+           if (cont > 20) then ativarFogo:=true;
+
+           //desenhar foguete
+           if (ativarFogo = false) then
+           begin
+                translacao(matrizTranslacao,200,155,0);
+                matrizPrincipal:=multiplicaMatriz(matrizRotacao, matrizTranslacao);
+                desenharFoguete(0,0,0, imagemTextura);
+           end
+           else
+           begin
+                translacao(matrizTranslacao, 200, 155 - 3*(cont-20), 0);
+                matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
+                desenharFoguete(0,0,3, imagemTextura);
+           end;
+
+
+           //desenhar base e ceu
+           if (ativarFogo = true) then
+           begin
+                translacao(matrizTranslacao, 200, 350 + 5*(cont-20), 0);
+                matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
+           end
+           else
+           begin
+                translacao(matrizTranslacao, 200, 350, 0);
+                matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
+           end;
+
+
+           desenharPlano(-125,-125,0,250,250, clGray);
+           desenharPlano(-125,-125,1,250,250, clGray);
+
+           //desenhar grama
+           if (ativarFogo = true) then
+           begin
+                translacao(matrizTranslacao, 0,220 + 5*(cont-20), 0);
+                matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
+           end
+           else
+           begin
+                translacao(matrizTranslacao, 0,220,0);
+                matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
+           end;
+
+           desenharGrama(0,0,0, 784,452);
+
+         end
+         else
+         begin
+
+              translacao(matrizTranslacao, 200, 580 - 5*(cont-160), 0);
+              matrizPrincipal:=multiplicaMatriz(matrizRotacao,matrizTranslacao);
+              desenharFoguete(0,0,0, imagemTextura);
+         end;
+
+         desenharCeu(dia);
 
          nomeImagem := IntToStr(cont) + '.bmp';
          imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
      end;
 
+     contEscala := 100;
+
+     for cont:=331 to 371 do
+     begin
+
+         inicializarImagemFundo();
+         inicializarZBuffer();
+
+         //Escala dos espaço - Simulação de zoom
+         desenharPlaneta(150,150,150,contEscala*0.3);
+         desenharEstrelaNave(600,300,300,contEscala*0.6,imagemTextura);
+
+         nomeImagem := IntToStr(cont) + '.bmp';
+         imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
+
+         contEscala := contEscala + 1;
+
+     end;
+
+     for cont := 372 to 421 do
+     begin
+
+         contRotacao := contRotacao + 1;
+         inicializarImagemFundo();
+         inicializarZBuffer();
+
+         desenharPlaneta(150,150,150,45.0);
+
+         //Rotação da estrela nave
+         aplicarTranformacao := true;
+         rotacaoY(matrizRotacao,-contRotacao);
+         matrizPrincipal := matrizRotacao;
+
+         desenharEstrelaNave(600,300,300,90.0,imagemTextura);
+         aplicarTranformacao:=false;
+
+         nomeImagem := IntToStr(cont) + '.bmp';
+         imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
+
+     end;
+
+     contVelocidadeNave := 0;
+     contSubidaFoguete := 201;
+     for cont := 422 to 452 do
+     begin
+
+         //Subindo foguete - foguete chegando ao espaço
+         contVelocidadeNave := contVelocidadeNave + 10;
+
+         inicializarImagemFundo();
+         inicializarZBuffer();
+
+         desenharPlaneta(150,150,150,45.0);
+
+         aplicarTranformacao := true;
+         rotacaoY(matrizRotacao,-49);
+         matrizPrincipal := matrizRotacao;
+         desenharEstrelaNave(600,300,300,90.0,imagemTextura);
+         aplicarTranformacao:=false;
+
+         aplicarTranformacao:=true;
+         translacao(matrizTranslacao,200,800-contSubidaFoguete-50-contVelocidadeNave,200);
+         matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizTranslacao);
+         desenharFoguete(0,0,0,150,imagemTextura);
+         aplicarTranformacao:=false;
+
+         nomeImagem := IntToStr(cont) + '.bmp';
+         imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
+
+         contSubidaFoguete := contSubidaFoguete + 1;
+
+     end;
+
+     contRotacao := 0;
+     for cont := 453 to 496 do
+     begin
+
+         //Cenas de rotação foguete e estrela nave
+         contRotacao := contRotacao + 1;
+
+         inicializarImagemFundo();
+         inicializarZBuffer();
+
+         desenharPlaneta(150,150,150,45.0);
+
+         aplicarTranformacao := true;
+         rotacaoY(matrizRotacao,-49);
+         matrizPrincipal := matrizRotacao;
+
+          if(cont < 468) then
+            begin
+                 rotacaoZ(matrizRotacao,contRotacao);
+                 matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizRotacao);
+            end
+         else
+            begin
+                 rotacaoZ(matrizRotacao,17);
+                 matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizRotacao);
+            end;
+
+
+         desenharEstrelaNave(600,300,300,90.0,imagemTextura);
+         aplicarTranformacao:=false;
+
+         aplicarTranformacao:=true;
+         rotacaoZ(matrizRotacao,-contRotacao);
+         matrizPrincipal := matrizRotacao;
+         translacao(matrizTranslacao,200,200,200);
+         matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizTranslacao);
+         desenharFoguete(0,0,0,150,imagemTextura);
+         aplicarTranformacao:=false;
+
+         nomeImagem := IntToStr(cont) + '.bmp';
+         imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
+     end;
+
+     x1 := 200; y1 := 340;
+     x2 := 280; y2 := 300;
+     for cont := 497 to 517 do
+     begin
+
+         //Cenas foguete atirando na estrela nave
+         inicializarImagemFundo();
+         inicializarZBuffer();
+
+         desenharPlaneta(150,150,150,45.0);
+
+         aplicarTranformacao := true;
+         rotacaoY(matrizRotacao,-49);
+         matrizPrincipal := matrizRotacao;
+         rotacaoZ(matrizRotacao,17);
+         matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizRotacao);
+         desenharEstrelaNave(600,300,300,90.0,imagemTextura);
+         aplicarTranformacao:=false;
+
+         aplicarTranformacao:=true;
+         rotacaoZ(matrizRotacao,-43);
+         matrizPrincipal := matrizRotacao;
+         translacao(matrizTranslacao,200,200,200);
+         matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizTranslacao);
+         desenharFoguete(0,0,0,150,imagemTextura);
+         aplicarTranformacao:=false;
+
+         imagePrincipal.Canvas.Pen.Color:=clRed;
+         imagePrincipal.Canvas.Pen.Width:=10;
+         imagePrincipal.Canvas.MoveTo(x1,y1);
+         imagePrincipal.Canvas.lineTo(x2,y2);
+
+         x1 := x1 + 20; y1 := y1 - 10;
+         x2 := x1 + 65; y2 := y2 - 10;
+
+         nomeImagem := IntToStr(cont) + '.bmp';
+         imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
+
+     end;
+
+     destruida := 1;
+     for cont := 518 to 536 do
+     begin
+
+         //Destruindo estrela nave e finalizando animação
+         inicializarImagemFundo();
+         inicializarZBuffer();
+
+         desenharPlaneta(150,150,150,45.0);
+
+         if(cont < 532) then
+           begin
+             aplicarTranformacao := true;
+             rotacaoY(matrizRotacao,-49);
+             matrizPrincipal := matrizRotacao;
+             rotacaoZ(matrizRotacao,17);
+             matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizRotacao);
+             if(destruida = 1) then desenharEstrelaNaveDestruida(600,300,300,90.0,clRed)
+             else desenharEstrelaNaveDestruida(600,300,300,90.0,clYellow);
+             aplicarTranformacao:=false;
+           end;
+
+         aplicarTranformacao:=true;
+         rotacaoZ(matrizRotacao,-43);
+         matrizPrincipal := matrizRotacao;
+         translacao(matrizTranslacao,200,200,200);
+         matrizPrincipal := multiplicaMatriz(matrizPrincipal,matrizTranslacao);
+         desenharFoguete(0,0,0,150,imagemTextura);
+         aplicarTranformacao:=false;
+
+         nomeImagem := IntToStr(cont) + '.bmp';
+         imagePrincipal.Picture.SaveToFile('cenas\' + nomeImagem);
+
+         if(destruida = 1) then destruida := 0
+         else destruida := 1;
+
+     end;
+
      Form3.lambert:=false;
      Form4.phong:=False;
 
+end;
+
+procedure TForm1.desenharCeu(dia:integer);
+var i,j:integer;
+begin
+
+     if dia = 1 then imageDia.Picture.LoadFromFile('img\ceudiurno.bmp')
+     else  imageDia.Picture.LoadFromFile('img\ceunoturno.bmp');
+     aplicarTranformacao:=false;
+     for i:=0 to 784 do
+     begin
+         for j:= 0 to 562 do
+         begin
+             assignZBuffer(i,j,-1300,imageDia.Canvas.Pixels[(i)mod(45),(j)mod(45)]);
+         end;
+     end;
+     aplicarTranformacao:=true;
+end;
+
+procedure TForm1.desenharGrama(x,y,z,l, m:integer);
+var i,j:integer;
+begin
+    for i:=0 to l do
+    begin
+        for j:=0 to m do
+        begin
+            assignZBuffer(x+i,y+j,z, imageGrama.Canvas.Pixels[(i)mod(50),(j)mod(50)]);
+        end;
+    end;
 end;
 
 procedure TForm1.inicializarImagemFundo();
@@ -218,7 +514,6 @@ begin
      imagePrincipal.Picture.LoadFromFile('img\espaco_fundo.bmp');
 
 end;
-
 
 procedure TForm1.desenharEstrelaNave(x,y,z:integer;r:real;imagem:TImage);
 var xp,yp,zp:integer;
@@ -247,6 +542,35 @@ begin
 
                     assignZBuffer(xp,yp,zp,cor);
                     //assignZBuffer(xp,yp,zp,clSilver);
+
+                    beta:=beta+passoBeta;
+                    j := (j + 0.85);
+                end;
+            alfa:=alfa+passoAlfa;
+            i := (i + 0.29);
+        end;
+end;
+
+procedure TForm1.desenharEstrelaNaveDestruida(x,y,z:integer;r:real;cor:tcolor);
+var xp,yp,zp:integer;
+    alfa, beta, pi2, passoAlfa, passoBeta:real;
+    i, j : real;
+begin
+    i := 0; j := 0;
+    alfa:=0;
+    pi2:=2*pi;
+    passoAlfa:=pi2/720; passoBeta:=pi2/360;
+    while alfa <= pi2 do
+        begin
+            beta:=-pi;
+            j := 0;
+            while beta <= pi do
+                begin
+                    xp:=round(x+r*cos(alfa)*cos(beta));
+                    yp:=round(y+r*cos(alfa)*sin(beta));
+                    zp:=round(z+r*sin(alfa));
+
+                    assignZBuffer(xp,yp,zp,cor);
 
                     beta:=beta+passoBeta;
                     j := (j + 0.85);
@@ -385,8 +709,32 @@ begin
      end;
 end;
 
-procedure TForm1.desenharFoguete(x,y,z:integer; imagem:TImage);
+procedure TForm1.desenharFoguete(x,y,z,h:integer; imagem:TImage);
 var i,j,palfa,pi2:real;
+  cor:tcolor;
+begin
+
+     imagem.Picture.LoadFromFile('img\textura_metal.bmp');
+     pi2:=2*pi;
+     palfa:=pi/360;
+     i:=0;
+     while (i <= h) do
+     begin
+         j:=0;
+         while (j <= pi2) do
+         begin
+              cor := imagem.Canvas.Pixels[round(i+1),round(j+1)];
+              if (i <= 50) then assignZBuffer(round(x+i*cos(j)), round(y+i), round(z+i*sin(j)), clRed);
+              assignZBuffer(round(x+50*cos(j)), round(y+50+i), round(z+50*sin(j)), cor);
+              j:=j+palfa;
+         end;
+
+         i:=i+0.1;
+     end;
+end;
+
+procedure TForm1.desenharFoguete(x,y,z:integer; imagem:TImage);
+var i,j,palfa,pi2, a,b, efeito:real;
   cor:tcolor;
 begin
 
@@ -400,13 +748,44 @@ begin
          while (j <= pi2) do
          begin
               cor := imagem.Canvas.Pixels[round(i+1),round(j+1)];
-              if (i <= 50) then assignZBuffer(round(x+i*cos(j)), round(y+i), round(z+i*sin(j)), clRed);
+              if (i <= 50) then
+              begin
+                   Form1.ativarIluminacao:=true;
+                   assignZBuffer(round(x+i*cos(j)), round(y+i), round(z+i*sin(j)), clRed);
+
+              end;
+              Form1.ativarIluminacao:=false;
               assignZBuffer(round(x+50*cos(j)), round(y+50+i), round(z+50*sin(j)), cor);
               j:=j+palfa;
          end;
 
          i:=i+0.1;
      end;
+
+     if (ativarFogo = true) then
+     begin
+     a:=x; b:=y+270;
+     i:=0;
+     efeito:=animar;
+     while i <= 45 do
+     begin
+         j:=0;
+         while j <= 70 do
+         begin
+              cor:=imageFogo.Canvas.Pixels[round(i), round(j)];
+              if cor <> clWhite then
+              begin
+                 assignZBuffer(round(a+i),round(b+j+round(efeito*5)mod(6)),z,cor);
+                 assignZBuffer(round(a-44+i),round(b+j+round(efeito*7)mod(8)),z,cor);
+              end;
+              j:=j+1;
+         end;
+         i:=i+1;
+     end;
+
+     end;
+
+     Form1.ativarIluminacao:=true;
 end;
 ////////////////////////////////////
 ///////////////////////////////////
@@ -1233,6 +1612,11 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   ativarIluminacao:=False;
+end;
+
+procedure TForm1.imageGramaClick(Sender: TObject);
+begin
+
 end;
 
 
